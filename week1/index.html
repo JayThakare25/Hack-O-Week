@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Live dashboard for monitoring dorm electricity meter data with moving average smoothing and linear regression evening peak prediction." />
+  <title>Dorm Energy Meter — Live Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+</head>
+<body>
+  <div class="dashboard-wrapper">
+
+    <!-- ===== Header ===== -->
+    <header class="header">
+      <div class="header-left">
+        <div class="header-icon">⚡</div>
+        <h1>Dorm Energy Meter Dashboard</h1>
+      </div>
+      <div class="header-right">
+        <span class="live-badge"><span class="live-dot"></span> LIVE</span>
+        <span id="clock">--:--:--</span>
+      </div>
+    </header>
+
+    <!-- ===== Controls ===== -->
+    <div class="controls-row">
+      <div class="control-group">
+        <label for="dormSelect">Dorm:</label>
+        <select id="dormSelect" class="control-select">
+          <option value="all">All Dorms</option>
+          <option value="0">Maple Hall</option>
+          <option value="1">Oak Tower</option>
+          <option value="2">Pine Lodge</option>
+          <option value="3">Cedar Court</option>
+          <option value="4">Elm Residence</option>
+        </select>
+      </div>
+      <div class="control-group">
+        <label for="maWindow">Moving Avg Window:</label>
+        <select id="maWindow" class="control-select">
+          <option value="3" selected>3 hours</option>
+          <option value="5">5 hours</option>
+          <option value="7">7 hours</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ===== Stat Cards ===== -->
+    <section class="stats-grid">
+      <div class="stat-card" id="statCurrent">
+        <div class="stat-label">Current Usage</div>
+        <div><span class="stat-value" id="valCurrent">--</span><span class="stat-unit">kWh</span></div>
+        <div class="stat-sub" id="subCurrent">across all dorms</div>
+      </div>
+      <div class="stat-card" id="statPeak">
+        <div class="stat-label">Predicted Evening Peak</div>
+        <div><span class="stat-value" id="valPeak">--</span><span class="stat-unit">kWh</span></div>
+        <div class="stat-sub" id="subPeak">via linear regression</div>
+      </div>
+      <div class="stat-card" id="statSmoothed">
+        <div class="stat-label">Smoothed Average</div>
+        <div><span class="stat-value" id="valSmoothed">--</span><span class="stat-unit">kWh</span></div>
+        <div class="stat-sub" id="subSmoothed">moving average</div>
+      </div>
+      <div class="stat-card" id="statSlope">
+        <div class="stat-label">Regression Slope</div>
+        <div><span class="stat-value" id="valSlope">--</span><span class="stat-unit">kWh/h</span></div>
+        <div class="stat-sub" id="subSlope">evening trend</div>
+      </div>
+    </section>
+
+    <!-- ===== Charts ===== -->
+    <section class="charts-grid">
+      <div class="chart-panel">
+        <div class="chart-header">
+          <span class="chart-title"><span class="icon">📈</span> Raw vs Smoothed Usage</span>
+          <span class="chart-badge badge-blue">Time Series</span>
+        </div>
+        <div class="chart-container" id="chartRawSmoothed"></div>
+      </div>
+    </section>
+
+    <section class="charts-split">
+      <div class="chart-panel">
+        <div class="chart-header">
+          <span class="chart-title"><span class="icon">🔮</span> Evening Peak Prediction</span>
+          <span class="chart-badge badge-rose">Regression</span>
+        </div>
+        <div class="chart-container" id="chartPeakPred"></div>
+      </div>
+      <div class="chart-panel">
+        <div class="chart-header">
+          <span class="chart-title"><span class="icon">🏠</span> Per-Dorm Breakdown</span>
+          <span class="chart-badge badge-green">Stacked</span>
+        </div>
+        <div class="chart-container" id="chartDormBreak"></div>
+      </div>
+    </section>
+
+    <!-- ===== Footer ===== -->
+    <footer class="footer">
+      Dorm Energy Meter Dashboard &mdash; Simulated data &bull; Auto-refreshes every 5 s
+    </footer>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
