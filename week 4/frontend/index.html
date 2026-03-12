@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cafeteria Load Predictor</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        body { font-family: sans-serif; padding: 20px; }
+        .container { max-width: 800px; margin: 0 auto; }
+        .controls { margin-top: 20px; padding: 10px; border: 1px solid #ccc; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Cafeteria Load Forecast</h1>
+        <canvas id="loadChart"></canvas>
+        
+        <div class="controls">
+            <h3>Simulate Conditions</h3>
+            <div style="margin-bottom: 10px;">
+                <label>Temperature:</label>
+                <input type="range" id="temp" min="10" max="40" value="25" oninput="updatePredict()">
+                <span id="tempVal">25</span>°C
+            </div>
+            <div>
+                <label>Weather:</label>
+                <select id="weather" onchange="updatePredict()">
+                    <option value="0">Sunny</option>
+                    <option value="1">Cloudy</option>
+                    <option value="2">Rainy</option>
+                </select>
+            </div>
+            <p>Predicted Load: <span id="prediction">-</span> people</p>
+        </div>
+    </div>
+
+    <script>
+        const ctx = document.getElementById('loadChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Predicted People Count',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    tension: 0.1
+                }]
+            },
+            options: {
+                scales: {
+                    y: { beginAtZero: true }
+                }
+            }
+        });
+
+        const ws = new WebSocket("ws://localhost:8000/ws");
+        
+        ws.onopen = () => {
+            console.log("Connected to WebSocket");
+            updatePredict(); // Initial prediction
+        };
+
+        ws.onmessage = (event) => {
+            const data = JSON.parse(event.data);
+            document.getElementById('prediction').textContent = Math.round(data.prediction);
+            
+            // Add to chart
+            const now = new Date().toLocaleTimeString();
+            chart.data.labels.push(now);
+            chart.data.datasets[0].data.push(data.prediction);
+            
+            // Keep last 20 points
+            if (chart.data.labels.length > 20) {
+                chart.data.labels.shift();
+                chart.data.datasets[0].data.shift();
+            }
+            chart.update();
+        };
+
+        function updatePredict() {
+            const temp = parseFloat(document.getElementById('temp').value);
+            const weather = parseInt(document.getElementById('weather').value);
+            document.getElementById('tempVal').textContent = temp;
+            
+            if (ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({temp: temp, weather: weather}));
+            }
+        }
+    </script>
+</body>
+</html>

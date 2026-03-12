@@ -1,0 +1,8 @@
+time,temperature,weather,people_count
+12:00,32,Sunny,120
+13:00,30,Cloudy,95
+14:00,28,Rainy,80
+15:00,29,Sunny,100
+16:00,31,Sunny,110
+17:00,27,Cloudy,85
+18:00,26,Rainy,70
